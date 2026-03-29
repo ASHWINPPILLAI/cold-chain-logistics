@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  tracking:
+    image: tracking-service:v1
+    container_name: cold-chain-tracking
+    ports:
+      - "8000:8000"
+    networks:
+      - logistics-net
+
+  inventory:
+    image: inventory-service:v1
+    container_name: cold-chain-inventory
+    ports:
+      - "3000:3000"
+    networks:
+      - logistics-net
+
+  notification:
+    image: notification-service:v1
+    container_name: cold-chain-notification
+    ports:
+      - "8080:8080"
+    networks:
+      - logistics-net
+
+networks:
+  logistics-net:
+    driver: bridge

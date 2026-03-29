@@ -1,0 +1,27 @@
+name: Cold Chain CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Build Tracking Service Image
+      run: docker build -t tracking-service:test ./tracking-service
+
+    - name: Build Inventory Service Image
+      run: docker build -t inventory-service:test ./inventory-service
+
+    - name: Build Notification Service Image
+      run: docker build -t notification-service:test ./notification-service
+
+    - name: Verify Builds
+      run: docker image ls
