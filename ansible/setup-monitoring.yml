@@ -1,0 +1,44 @@
+---
+- name: Configure Kubernetes Nodes and Install Monitoring Agents
+  hosts: kubernetes_nodes
+  become: yes
+  tasks:
+    - name: Ensure required packages are installed
+      apt:
+        name:
+          - curl
+          - apt-transport-https
+        state: present
+        update_cache: yes
+
+    - name: Download Prometheus Node Exporter
+      get_url:
+        url: https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
+        dest: /tmp/node_exporter.tar.gz
+
+    - name: Extract Node Exporter
+      unarchive:
+        src: /tmp/node_exporter.tar.gz
+        dest: /opt/
+        remote_src: yes
+
+    - name: Create systemd service for Node Exporter
+      copy:
+        dest: /etc/systemd/system/node_exporter.service
+        content: |
+          [Unit]
+          Description=Node Exporter
+          After=network.target
+
+          [Service]
+          User=root
+          ExecStart=/opt/node_exporter-1.6.1.linux-amd64/node_exporter
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Start and enable Node Exporter service
+      systemd:
+        name: node_exporter
+        state: started
+        enabled: yes
